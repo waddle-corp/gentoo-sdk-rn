@@ -1,10 +1,10 @@
 
 
-import { fetchFloatingData } from "@/src/api/sdkApi";
+import { fetchFloatingData } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { useCallback, useState } from "react";
-import { Dimensions, Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
 
 type GentooChatProps = {
