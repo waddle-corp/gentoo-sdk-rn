@@ -63,7 +63,7 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     {/* <Text style={styles.buttonText}>Gentoo</Text> */}
                     {/* <Image source={require('../assets/images/floating-gentoo.png')} style={styles.buttonImage} /> */}
                     <LottieView 
-                        source={require('../assets/images/lottie-test.json')} 
+                        source={require('../../assets/images/lottie-test.json')} 
                         autoPlay 
                         loop 
                         style={{ width: 60, height: 60 }}
