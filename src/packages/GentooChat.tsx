@@ -4,7 +4,7 @@ import { fetchFloatingData } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { useCallback, useState } from "react";
-import { Dimensions, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
 
 type GentooChatProps = {
@@ -13,6 +13,8 @@ type GentooChatProps = {
     itemId: string;
     displayLocation: string;
 }
+
+const lottieTest = Image.resolveAssetSource(require('../../assets/images/lottie-test.json'));
 
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -63,7 +65,7 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     {/* <Text style={styles.buttonText}>Gentoo</Text> */}
                     {/* <Image source={require('../assets/images/floating-gentoo.png')} style={styles.buttonImage} /> */}
                     <LottieView 
-                        source={require('../../assets/images/lottie-test.json')} 
+                        source={lottieTest} 
                         autoPlay 
                         loop 
                         style={{ width: 60, height: 60 }}
