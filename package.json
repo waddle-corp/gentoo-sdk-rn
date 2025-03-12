@@ -1,9 +1,11 @@
 {
   "name": "react-native-gentoo-sdk",
-  "main": "expo-router/entry",
-  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "version": "0.0.1",
   "scripts": {
     "start": "expo start",
+    "build": "tsc",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -18,6 +20,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "axios": "^1.8.3",
     "expo": "~52.0.38",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.8",
@@ -30,6 +33,8 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
+    "lottie-ios": "^4.5.1",
+    "lottie-react-native": "^7.2.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
@@ -50,5 +55,5 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": false
 }
