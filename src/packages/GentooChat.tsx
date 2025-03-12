@@ -14,7 +14,7 @@ type GentooChatProps = {
     displayLocation: string;
 }
 
-const lottieTest = Image.resolveAssetSource(require('../../assets/images/lottie-test.json'));
+const lottieTest = Image.resolveAssetSource(require('react-native-gentoo-sdk/dist/assets/images/lottie-test.json'));
 
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
