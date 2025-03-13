@@ -81,11 +81,6 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     <WebView
                         source={{ uri: chatUrl }}
                         style={styles.webview}
-                    // Some optional props, if needed:
-                    // onMessage={(event) => { console.log("Message from chat:", event.nativeEvent.data); }}
-                    // injectedJavaScript={...}
-                    // sharedCookiesEnabled={true}
-                    // javaScriptEnabled={true}
                     />
                 </View>
             </Modal>
@@ -103,14 +98,12 @@ const styles = StyleSheet.create({
         zIndex: 9999,
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'flex-end',
     },
     floatingButton: {
         width: 60,
         height: 60,
-        borderRadius: 30,
-        // backgroundColor: '#154cca', // iOS default blue
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999
@@ -144,15 +137,16 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     floatingCommentContainer: {
-        maxWidth: 120,
+        maxWidth: 140,
         backgroundColor: '#222',
         zIndex: 9999,
         padding: 10,
         borderRadius: 10,
-        marginRight: 10
+        marginRight: 8
     },
     floatingCommentText: {
         color: '#fff',
-        fontSize: 12
+        fontSize: 12,
+        wordWrap: 'break-word'
     }
 });
