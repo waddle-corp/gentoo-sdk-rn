@@ -18,7 +18,7 @@ type GentooChatProps = {
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [floatingComment, setFloatingComment] = useState('');
-    const lottieTest = { uri: 'asset:/assets/images/lottie-test2.json' };;
+    const lottieTest = require('../../assets/images/floating-gentoo-static.png');
 
     // const chatUrl = `https://demo.gentooai.com/chatroute/${partnerType}?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
     const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
@@ -63,13 +63,13 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     onPress={toggleChat}
                 >
                     {/* <Text style={styles.buttonText}>Gentoo</Text> */}
-                    {/* <Image source={require('../assets/images/floating-gentoo.png')} style={styles.buttonImage} /> */}
-                    <LottieView 
+                    <Image source={require('../../assets/images/floating-gentoo.png')} style={styles.buttonImage} />
+                    {/* <LottieView 
                         source={lottieTest} 
                         autoPlay 
                         loop 
                         style={{ width: 60, height: 60 }}
-                    />
+                    /> */}
                 </TouchableOpacity>
             </View>
 
