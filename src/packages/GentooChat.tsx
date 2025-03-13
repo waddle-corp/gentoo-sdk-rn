@@ -2,7 +2,6 @@
 
 import { fetchFloatingData } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
-import LottieView from "lottie-react-native";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
@@ -14,11 +13,10 @@ type GentooChatProps = {
     displayLocation: string;
 }
 
-
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [floatingComment, setFloatingComment] = useState('');
-    const lottieTest = require('../../assets/images/floating-gentoo-static.png');
+    const floatingImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/floating-gentoo-static.png'};
 
     // const chatUrl = `https://demo.gentooai.com/chatroute/${partnerType}?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
     const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
@@ -62,14 +60,7 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     style={styles.floatingButton}
                     onPress={toggleChat}
                 >
-                    {/* <Text style={styles.buttonText}>Gentoo</Text> */}
-                    <Image source={require('../../assets/images/floating-gentoo.png')} style={styles.buttonImage} />
-                    {/* <LottieView 
-                        source={lottieTest} 
-                        autoPlay 
-                        loop 
-                        style={{ width: 60, height: 60 }}
-                    /> */}
+                    <Image source={floatingImageSource} style={styles.buttonImage} />
                 </TouchableOpacity>
             </View>
 
@@ -112,7 +103,7 @@ const styles = StyleSheet.create({
         zIndex: 9999,
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         justifyContent: 'flex-end',
     },
     floatingButton: {
@@ -153,6 +144,7 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     floatingCommentContainer: {
+        maxWidth: 120,
         backgroundColor: '#222',
         zIndex: 9999,
         padding: 10,
@@ -161,6 +153,6 @@ const styles = StyleSheet.create({
     },
     floatingCommentText: {
         color: '#fff',
-        fontSize: 10
+        fontSize: 12
     }
 });
