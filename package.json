@@ -2,7 +2,7 @@
   "name": "react-native-gentoo-sdk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "scripts": {
     "start": "expo start",
     "build": "tsc && copyfiles -u 1 \"src/assets/**/*\" dist/assets",

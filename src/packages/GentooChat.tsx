@@ -14,11 +14,11 @@ type GentooChatProps = {
     displayLocation: string;
 }
 
-const lottieTest = Image.resolveAssetSource(require('react-native-gentoo-sdk/dist/assets/images/lottie-test.json'));
 
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [floatingComment, setFloatingComment] = useState('');
+    const lottieTest = { uri: 'asset:/assets/images/lottie-test2.json' };;
 
     // const chatUrl = `https://demo.gentooai.com/chatroute/${partnerType}?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
     const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
