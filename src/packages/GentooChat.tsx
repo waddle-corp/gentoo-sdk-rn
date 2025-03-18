@@ -1,10 +1,9 @@
-
-
-import { fetchFloatingData } from "../api/sdkApi";
+import { fetchChatbotData, fetchChatUserId, fetchFloatingData } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import WebView from "react-native-webview";
+import config from "../config/env";
 
 type GentooChatProps = {
     partnerId: string;
@@ -16,10 +15,13 @@ type GentooChatProps = {
 export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [floatingComment, setFloatingComment] = useState('');
-    const floatingImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/floating-gentoo-static.png'};
-
-    // const chatUrl = `https://demo.gentooai.com/chatroute/${partnerType}?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
-    const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
+    const [chatUserId, setChatUserId] = useState('');
+    const [position, setPosition] = useState({});
+    const floatingImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/floating-gentoo-static.png' };
+    const chatCloseImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/chat-shrink-md.png' };
+    const modalHandlerImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/sdk-bs-handler.png' };
+    // const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
+    const chatUrl = `${config.CHAT_BASE_URL}/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
@@ -27,12 +29,30 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
 
     useFocusEffect(
         useCallback(() => {
+            fetchChatUserId(authCode)
+                .then((chatUserId) => {
+                    console.log('chatUserId', chatUserId);
+                    setChatUserId(chatUserId);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
+            fetchChatbotData(partnerId)
+                .then((chatbotData) => {
+                    console.log('chatbotData', chatbotData.mobilePosition);
+                    setPosition(chatbotData.mobilePosition);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
             fetchFloatingData(partnerId, displayLocation)
-                .then((res) => {
-                    res.comment.split('').forEach((text: string, index: number) => {
+                .then((floatingData) => {
+                    floatingData.comment.split('').forEach((text: string, index: number) => {
                         setTimeout(() => {
                             setFloatingComment((prevComment) => prevComment + text);
-                        }, 1000 / res.comment.length * index);
+                        }, 1000 / floatingData.comment.length * index);
                     });
                 })
                 .catch((error) => {
@@ -48,7 +68,7 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
     return (
         <>
             {/* Floating button */}
-            <View style={styles.floatingButtonContainer}>
+            <View style={[styles.floatingButtonContainer, position]}>
                 {
                     floatingComment && (
                         <View style={styles.floatingCommentContainer}>
@@ -68,20 +88,26 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
             <Modal
                 visible={isChatOpen}
                 animationType="slide"
-                transparent={false}
+                transparent={true}
                 onRequestClose={toggleChat}
             >
-                <View style={styles.modalContainer}>
-                    {/* Close button */}
-                    <TouchableOpacity style={styles.closeButton} onPress={toggleChat}>
-                        <Text style={styles.closeButtonText}>X</Text>
-                    </TouchableOpacity>
+                <View style={styles.fullScreenContainer}>
+                    <View style={styles.modalContainer}>
+                        {/* Close button */}
+                        <View style={styles.closeButtonContainer}>
+                            <Image source={modalHandlerImageSource} style={styles.modalHandlerImage} />
+                            <Text style={styles.closeButtonText}>Powered By Gentoo</Text>
+                            <TouchableOpacity style={styles.closeButton} onPress={toggleChat}>
+                                <Image source={chatCloseImageSource} style={styles.closeButtonImage} />
+                            </TouchableOpacity>
+                        </View>
 
-                    {/* Chat WebView */}
-                    <WebView
-                        source={{ uri: chatUrl }}
-                        style={styles.webview}
-                    />
+                        {/* Chat WebView */}
+                        <WebView
+                            source={{ uri: chatUrl }}
+                            style={styles.webview}
+                        />
+                    </View>
                 </View>
             </Modal>
         </>
@@ -93,12 +119,12 @@ const screenHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
     floatingButtonContainer: {
         position: 'absolute',
-        bottom: 100,
-        right: 20,
+        bottom: 0,
+        right: -100,
         zIndex: 9999,
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'flex-end', 
         justifyContent: 'flex-end',
     },
     floatingButton: {
@@ -116,25 +142,56 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 10
     },
-    modalContainer: {
+    fullScreenContainer: {
         flex: 1,
-        backgroundColor: '#fff'
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    modalContainer: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: '90%',
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        overflow: 'hidden'
+    },
+    closeButtonContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        height: 44,
+        // padding: 10,
+        // marginTop: Platform.OS === 'ios' ? 40 : 10,
     },
     closeButton: {
-        alignSelf: 'flex-end',
-        padding: 10,
-        marginTop: Platform.OS === 'ios' ? 40 : 10,
+        position: 'absolute',
+        right: 0,
+        top: 10,
+        // padding: 10,
+        // marginTop: Platform.OS === 'ios' ? 40 : 10,
         marginRight: 10,
-        backgroundColor: '#666',
-        borderRadius: 4
+    },
+    closeButtonImage: {
+        width: 20,
+        height: 20
     },
     closeButtonText: {
-        color: '#fff',
-        fontWeight: 'bold'
+        alignSelf: 'center',
+        color: '#999',
+        fontWeight: 'light',
+        fontSize: 12
+    },
+    modalHandlerImage: {
+        width: 40,
+        height: 4,
+        marginBottom: 8,
     },
     webview: {
         flex: 1,
-        marginTop: 10
     },
     floatingCommentContainer: {
         maxWidth: 140,
