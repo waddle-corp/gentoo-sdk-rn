@@ -2,7 +2,7 @@
   "name": "react-native-gentoo-sdk",
   "main": "expo-router/entry",
   "types": "expo-router/entry.d.ts",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "scripts": {
     "start": "expo start",
     "build": "tsc",
