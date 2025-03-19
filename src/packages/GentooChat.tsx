@@ -1,27 +1,55 @@
 import { fetchChatbotData, fetchChatUserId, fetchFloatingData } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import { Dimensions, Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Animated, Dimensions, Image, Keyboard, Modal, PanResponder, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import WebView from "react-native-webview";
 import config from "../config/env";
+import GentooService from "./GentooService";
 
 type GentooChatProps = {
-    partnerId: string;
-    authCode: string;
-    itemId: string;
-    displayLocation: string;
+    showGentooButton: boolean;
 }
 
-export default function GentooChat({ partnerId, authCode, itemId, displayLocation }: GentooChatProps) {
+export default function GentooChat({ showGentooButton }: GentooChatProps) {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [floatingComment, setFloatingComment] = useState('');
     const [chatUserId, setChatUserId] = useState('');
     const [position, setPosition] = useState({});
+    const [serviceConfig, setServiceConfig] = useState(GentooService.App.getServiceConfig());
+    const [modalHeightPercent, setModalHeightPercent] = useState(0.9);
     const floatingImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/floating-gentoo-static.png' };
     const chatCloseImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/chat-shrink-md.png' };
     const modalHandlerImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/sdk-bs-handler.png' };
     // const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
-    const chatUrl = `${config.CHAT_BASE_URL}/chatroute/$gentoo?ptid=${partnerId}&ch=true&cuid=${authCode}`
+    const chatUrl = `${config.CHAT_BASE_URL}/chatroute/gentoo?ptid=${serviceConfig.partnerId}&ch=true&cuid=${serviceConfig.authCode}`
+    const SCREEN_HEIGHT = Dimensions.get('window').height;
+    const MODAL_HEIGHT = SCREEN_HEIGHT * modalHeightPercent;
+
+    useEffect(() => {
+        // Listen for controller events
+        const handleConfigUpdate = (newConfig: any) => setServiceConfig(newConfig);
+        const handleToggleChat = () => toggleChat();
+        const handleUnmount = () => {
+          Animated.timing(pan, {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: false,
+          }).start(() => {
+            setIsChatOpen(false);
+            pan.setValue(0);
+          });
+        };
+        
+        GentooService.App.on("configChanged", handleConfigUpdate);   
+        GentooService.App.on("toggleChat", handleToggleChat);
+        GentooService.App.on("unmount", handleUnmount);
+    
+        return () => {
+          GentooService.App.off("configChanged", handleConfigUpdate);
+          GentooService.App.off("toggleChat", handleToggleChat);
+          GentooService.App.off("unmount", handleUnmount);
+        };
+      }, []);
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
@@ -29,7 +57,9 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
 
     useFocusEffect(
         useCallback(() => {
-            fetchChatUserId(authCode)
+            console.log('serviceConfig', serviceConfig);
+            if (!serviceConfig.authCode) return;
+            fetchChatUserId(serviceConfig.authCode)
                 .then((chatUserId) => {
                     console.log('chatUserId', chatUserId);
                     setChatUserId(chatUserId);
@@ -38,7 +68,8 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     console.error(error);
                 });
 
-            fetchChatbotData(partnerId)
+            if (!serviceConfig.partnerId) return;
+            fetchChatbotData(serviceConfig.partnerId)
                 .then((chatbotData) => {
                     console.log('chatbotData', chatbotData.mobilePosition);
                     setPosition(chatbotData.mobilePosition);
@@ -47,7 +78,7 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                     console.error(error);
                 });
 
-            fetchFloatingData(partnerId, displayLocation)
+            fetchFloatingData(serviceConfig.partnerId, serviceConfig.displayLocation || 'HOME')
                 .then((floatingData) => {
                     floatingData.comment.split('').forEach((text: string, index: number) => {
                         setTimeout(() => {
@@ -62,27 +93,54 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
             setTimeout(() => {
                 setFloatingComment('');
             }, 2000);
-        }, [])
+        }, [serviceConfig])
     );
+
+    const pan = useRef(new Animated.Value(0)).current;
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderMove: Animated.event(
+                [null, { dy: pan }],
+                { useNativeDriver: false }
+            ),
+            onPanResponderRelease: (evt, gesture) => {
+                console.log('gesture', gesture);
+                if (gesture.dy > 100) {
+                    Animated.timing(pan, { toValue: MODAL_HEIGHT, duration: 100, useNativeDriver: false }).start(() => {
+                        pan.setValue(0);
+                        setIsChatOpen(false);
+                    });
+                } else {
+                    Animated.spring(pan, { toValue: 0, useNativeDriver: false }).start();
+                }
+            },
+        })
+    ).current;
 
     return (
         <>
             {/* Floating button */}
-            <View style={[styles.floatingButtonContainer, position]}>
-                {
-                    floatingComment && (
-                        <View style={styles.floatingCommentContainer}>
-                            <Text style={styles.floatingCommentText}>{floatingComment}</Text>
-                        </View>
-                    )
-                }
-                <TouchableOpacity
-                    style={styles.floatingButton}
-                    onPress={toggleChat}
-                >
-                    <Image source={floatingImageSource} style={styles.buttonImage} />
-                </TouchableOpacity>
-            </View>
+            {
+                showGentooButton && 
+                <View style={[styles.floatingButtonContainer, position]}>
+                    {
+                        floatingComment && (
+                            <View style={styles.floatingCommentContainer}>
+                                <Text style={styles.floatingCommentText}>{floatingComment}</Text>
+                            </View>
+                        )
+                    }
+                    <TouchableOpacity
+                        style={styles.floatingButton}
+                        onPress={toggleChat}
+                    >
+                        <Image source={floatingImageSource} style={styles.buttonImage} />
+                    </TouchableOpacity>
+                </View>
+            }
 
             {/* Chat Modal */}
             <Modal
@@ -91,30 +149,45 @@ export default function GentooChat({ partnerId, authCode, itemId, displayLocatio
                 transparent={true}
                 onRequestClose={toggleChat}
             >
-                <View style={styles.fullScreenContainer}>
-                    <View style={styles.modalContainer}>
-                        {/* Close button */}
-                        <View style={styles.closeButtonContainer}>
-                            <Image source={modalHandlerImageSource} style={styles.modalHandlerImage} />
-                            <Text style={styles.closeButtonText}>Powered By Gentoo</Text>
-                            <TouchableOpacity style={styles.closeButton} onPress={toggleChat}>
-                                <Image source={chatCloseImageSource} style={styles.closeButtonImage} />
-                            </TouchableOpacity>
-                        </View>
+                    <View style={styles.fullScreenContainer}>
+                        <TouchableWithoutFeedback
+                            onPress={() => {
+                                Keyboard.dismiss();
+                                toggleChat();
+                            }}
+                            accessible={false}
+                        >
+                            <View style={styles.backgroundOverlay} />
+                        </TouchableWithoutFeedback>
+                        <Animated.View
+                            style={[styles.modalContainer, { transform: [{ translateY: pan }] }]}
+                        >
+                            {/* Close button */}
+                            <View style={styles.closeButtonContainer}>
+                                <View
+                                    style={styles.closeButtonContainer}
+                                    {...panResponder.panHandlers}
+                                >
+                                    <Image source={modalHandlerImageSource} style={styles.modalHandlerImage} />
+                                    <Text style={styles.closeButtonText}>Powered By Gentoo</Text>
+                                </View>
+                                <TouchableOpacity style={styles.closeButton} onPress={() => setIsChatOpen(false)}>
+                                    <Image source={chatCloseImageSource} style={styles.closeButtonImage} />
+                                </TouchableOpacity>
+                            </View>
 
-                        {/* Chat WebView */}
-                        <WebView
-                            source={{ uri: chatUrl }}
-                            style={styles.webview}
-                        />
+                            {/* Chat WebView */}
+                            <WebView
+                                source={{ uri: chatUrl }}
+                                style={styles.webview}
+                            />
+                        </Animated.View>
                     </View>
-                </View>
+
             </Modal>
         </>
     )
 }
-
-const screenHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
     floatingButtonContainer: {
@@ -124,7 +197,7 @@ const styles = StyleSheet.create({
         zIndex: 9999,
         flex: 1,
         flexDirection: 'row',
-        alignItems: 'flex-end', 
+        alignItems: 'flex-end',
         justifyContent: 'flex-end',
     },
     floatingButton: {
@@ -147,6 +220,13 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         backgroundColor: 'rgba(0, 0, 0, 0.5)'
     },
+    backgroundOverlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
     modalContainer: {
         position: 'absolute',
         bottom: 0,
@@ -158,6 +238,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden'
     },
     closeButtonContainer: {
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, Platform } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import GentooChat from '../../src/packages/GentooChat';
+import GentooService from '../../src/packages/GentooService';
 
 type CartItem = {
   id: string;
@@ -11,11 +12,41 @@ type CartItem = {
 
 export default function CartScreen() {
   // For this demo, let's assume we have some items in the cart state:
+  
+  const gentooInput = {
+    partnerId: "6718be2310310e41ab5276ef",
+    authCode: "selentest_rn",
+    itemId: "111111111111111111111111",
+    displayLocation: "HOME",
+  }
+
+  if (Platform.OS !== 'web') {
+    GentooService.App.init(gentooInput);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'web') {
+        console.log("CartScreen focused");
+        if ((window as any).GentooIO) {
+          console.log("GentooIO unmounted");
+          GentooService.Web.unmount();
+        }
+        GentooService.Web.loadScript();
+        GentooService.Web.boot(gentooInput);
+        GentooService.Web.init({
+            showGentooButton: true,
+        });
+      }
+    }, [])
+  );
+  
   const [cartItems, setCartItems] = useState<CartItem[]>([
     { id: '1', name: 'Classic White Shirt', price: 29.99 },
     { id: '2', name: 'Black T-Shirt', price: 19.99 },
   ]);
 
+  
   const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
   function handleCheckout() {
@@ -29,6 +60,7 @@ export default function CartScreen() {
 
   return (
     <>
+      <GentooChat showGentooButton={true} />
       {/* Use Stack.Screen to set the title in the nav bar */}
       <Stack.Screen options={{ title: 'My Cart' }} />
 
@@ -53,11 +85,10 @@ export default function CartScreen() {
             />
 
             <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
-            <Button title="Checkout" onPress={handleCheckout} />
+            <Button title="Checkout" onPress={() => GentooService.App.toggleChat()} />
           </>
         )}
       </View>
-      <GentooChat partnerId="6737041bcf517dbd2b8b6458" authCode="selentest_rn" itemId="111111111111111111111111" displayLocation="HOME" />
     </>
   );
 }
