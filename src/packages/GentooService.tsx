@@ -44,7 +44,7 @@ class GentooServiceApp extends EventEmitter {
       eventCategory: string;
       authCode: string;
       partnerId: string;
-      products: string[];
+      products: { itemId: string; quantity: string }[];
     }) {
       this.emit("sendLog", payload);
     }
