@@ -29,6 +29,6 @@ const ENV = {
   };
   
   const currentEnv = getEnvironment();
-  const config = ENV[currentEnv] || ENV.production;
+  const config = ENV.production;
   
   export default config;
