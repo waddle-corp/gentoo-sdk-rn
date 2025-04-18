@@ -1,7 +1,7 @@
-import { fetchChatbotData, fetchChatUserId, fetchFloatingData } from "../api/sdkApi";
+import { fetchChatbotData, fetchChatUserId, fetchFloatingData, logEvent } from "../api/sdkApi";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, Image, Keyboard, Modal, PanResponder, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Animated, Dimensions, Image, Keyboard, Linking, Modal, PanResponder, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import WebView from "react-native-webview";
 import config from "../config/env";
 import GentooService from "./GentooService";
@@ -17,9 +17,9 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
     const [position, setPosition] = useState({});
     const [serviceConfig, setServiceConfig] = useState(GentooService.App.getServiceConfig());
     const [modalHeightPercent, setModalHeightPercent] = useState(0.9);
-    const floatingImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/floating-gentoo-static.png' };
-    const chatCloseImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/chat-shrink-md.png' };
-    const modalHandlerImageSource = { uri: 'https://d32xcphivq9687.cloudfront.net/public/img/units/sdk-bs-handler.png' };
+    const floatingImageSource = { uri: 'https://sdk.gentooai.com/public/img/units/floating-gentoo-static.png' };
+    const chatCloseImageSource = { uri: 'https://sdk.gentooai.com/public/img/units/chat-shrink-md.png' };
+    const modalHandlerImageSource = { uri: 'https://sdk.gentooai.com/public/img/units/sdk-bs-handler.png' };
     // const chatUrl = `https://demo.gentooai.com/chatroute/$gentoo?ptid=${partnerId}&ch=${isMobileDevice}&cuid=${chatUserId}&utms=${utm.utms}&utmm=${utm.utmm}&utmca=${utm.utmcp}&utmco=${utm.utmct}&utmt=${utm.utmt}&tp=${utm.tp}`
     const chatUrl = `${config.CHAT_BASE_URL}/chatroute/gentoo?ptid=${serviceConfig.partnerId}&ch=true&cuid=${serviceConfig.authCode}`
     const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -53,6 +53,13 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen);
+        logEvent({
+            eventCategory: "SDKFloatingClicked",
+            chatUserId: chatUserId,
+            partnerId: serviceConfig.partnerId,
+            channelId: 'mobile',
+            products: [],
+        });
     }
 
     useFocusEffect(
@@ -71,7 +78,6 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
             if (!serviceConfig.partnerId) return;
             fetchChatbotData(serviceConfig.partnerId)
                 .then((chatbotData) => {
-                    console.log('chatbotData', chatbotData.mobilePosition);
                     setPosition(chatbotData.mobilePosition);
                 })
                 .catch((error) => {
@@ -89,6 +95,14 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
                 .catch((error) => {
                     console.error(error);
                 });
+
+            logEvent({
+                eventCategory: "SDKFloatingRendered",
+                partnerId: serviceConfig.partnerId,
+                chatUserId: chatUserId,
+                channelId: 'mobile',
+                products: [],
+            });
 
             setTimeout(() => {
                 setFloatingComment('');
@@ -180,6 +194,12 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
                             <WebView
                                 source={{ uri: chatUrl }}
                                 style={styles.webview}
+                                onMessage={(event) => {
+                                    const message = JSON.parse(event.nativeEvent.data);
+                                    if (message.type === 'redirect') {
+                                      Linking.openURL(message.url); // 딥링크로 앱 내 이동
+                                    }
+                                }}
                             />
                         </Animated.View>
                     </View>

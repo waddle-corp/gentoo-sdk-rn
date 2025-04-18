@@ -62,7 +62,7 @@ class GentooServiceWeb {
         const s = document.createElement("script");
         s.type = "text/javascript";
         s.async = true;
-        s.src = "https://d32xcphivq9687.cloudfront.net/floating-button-sdk.js";
+        s.src = "https://sdk.gentooai.com/floating-button-sdk.js";
         
         const x = document.getElementsByTagName("script")[0];
         if (x.parentNode) {
@@ -96,6 +96,11 @@ class GentooServiceWeb {
     unmount() {
       if (typeof window === 'undefined') return;
       (window as any).GentooIO("unmount", {});
+    }
+
+    sendLog(params: any) {
+      if (typeof window === 'undefined') return;
+      (window as any).GentooIO("sendLog", params);
     }
 }
   

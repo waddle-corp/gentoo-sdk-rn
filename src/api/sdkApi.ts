@@ -56,3 +56,28 @@ export async function fetchFloatingData(partnerId: string, displayLocation: stri
         console.error(`Error while calling fetchFloatingData API: ${error}`);
     }
 }
+
+export async function logEvent(payload: any) {
+    try {
+        const params = {
+            eventCategory: String(payload.eventCategory),
+            chatUserId: String(payload.chatUserId),
+            partnerId: String(payload.partnerId),
+            channelId: String(payload.channelId),
+            products: payload?.products,
+        };
+
+        const response = await fetch(`${apiUrl.chat.log}/${payload.partnerId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(params),
+        });
+
+        const res = await response.json();
+        return res;
+    } catch (error) {
+        console.error(`Error while calling logEvent API: ${error}`);
+    }
+}

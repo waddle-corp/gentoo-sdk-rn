@@ -2,7 +2,7 @@
   "name": "react-native-gentoo-sdk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "version": "0.0.15",
+  "version": "0.1.4",
   "scripts": {
     "start": "expo start",
     "build": "tsc",

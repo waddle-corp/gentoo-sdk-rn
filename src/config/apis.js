@@ -20,7 +20,8 @@ const apiUrl = {
     chat: {
         chatbot: `${config.API_URL}${apiVersion}/chat/chatbot`,
         floating: `${config.API_URL}${apiVersion}/chat/floating`,
-    },
+        log: `${config.API_URL}${apiVersion}/event/userEvent`,
+    }
 }
 
 export default apiUrl;
