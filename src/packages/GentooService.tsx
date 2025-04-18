@@ -42,9 +42,8 @@ class GentooServiceApp extends EventEmitter {
 
     sendLog(payload: {
       eventCategory: string;
-      chatUserId: string;
+      authCode: string;
       partnerId: string;
-      channelId: string;
       products: string[];
     }) {
       this.emit("sendLog", payload);

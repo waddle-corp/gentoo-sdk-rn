@@ -64,7 +64,7 @@ export async function logEvent(payload: any) {
             eventCategory: String(payload.eventCategory),
             chatUserId: String(chatUserId),
             partnerId: String(payload.partnerId),
-            channelId: String(payload.channelId),
+            channelId: 'mobile',
             products: payload?.products,
         };
 
