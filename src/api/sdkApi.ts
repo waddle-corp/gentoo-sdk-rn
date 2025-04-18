@@ -58,6 +58,7 @@ export async function fetchFloatingData(partnerId: string, displayLocation: stri
 }
 
 export async function logEvent(payload: any) {
+    console.log('apiUrl.chat.log', apiUrl.chat.log);
     const chatUserId = await fetchChatUserId(payload.authCode);
     try {
         const params = {

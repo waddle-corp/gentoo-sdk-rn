@@ -20,6 +20,7 @@ const ENV = {
   const getEnvironment = () => {
     // 빌드 과정에서 주입된 환경 변수가 있다면 사용
     if (process.env.NODE_ENV) {
+      console.log('process.env.NODE_ENV', process.env.NODE_ENV);
       return process.env.NODE_ENV;
     }
     
