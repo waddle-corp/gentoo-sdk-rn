@@ -39,6 +39,16 @@ class GentooServiceApp extends EventEmitter {
     unmount() {
         this.emit("unmount");
     }
+
+    sendLog(payload: {
+      eventCategory: string;
+      chatUserId: string;
+      partnerId: string;
+      channelId: string;
+      products: string[];
+    }) {
+      this.emit("sendLog", payload);
+    }
 }
 
 class GentooServiceWeb {

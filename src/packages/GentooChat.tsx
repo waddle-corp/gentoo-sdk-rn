@@ -39,15 +39,20 @@ export default function GentooChat({ showGentooButton }: GentooChatProps) {
             pan.setValue(0);
           });
         };
+        const handleSendLog = (payload: any) => {
+          logEvent(payload);
+        };
         
         GentooService.App.on("configChanged", handleConfigUpdate);   
         GentooService.App.on("toggleChat", handleToggleChat);
         GentooService.App.on("unmount", handleUnmount);
+        GentooService.App.on("sendLog", handleSendLog);
     
         return () => {
           GentooService.App.off("configChanged", handleConfigUpdate);
           GentooService.App.off("toggleChat", handleToggleChat);
           GentooService.App.off("unmount", handleUnmount);
+          GentooService.App.off("sendLog", handleSendLog);
         };
       }, []);
 
