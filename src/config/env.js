@@ -1,14 +1,14 @@
 const ENV = {
-    development: {
-      API_URL: 'https://dev-api.gentooai.com/chat',
-      CHAT_BASE_URL: 'https://dev-demo.gentooai.com',
-      DEBUG: true
-    },
-    stage: {
-      API_URL: 'https://stage-api.gentooai.com/chat',
-      CHAT_BASE_URL: 'https://stage-demo.gentooai.com',
-      DEBUG: true
-    },
+    // development: {
+    //   API_URL: 'https://dev-api.gentooai.com/chat',
+    //   CHAT_BASE_URL: 'https://dev-demo.gentooai.com',
+    //   DEBUG: true
+    // },
+    // stage: {
+    //   API_URL: 'https://stage-api.gentooai.com/chat',
+    //   CHAT_BASE_URL: 'https://stage-demo.gentooai.com',
+    //   DEBUG: true
+    // },
     production: {
       API_URL: 'https://api.gentooai.com/chat',
       CHAT_BASE_URL: 'https://demo.gentooai.com',
@@ -28,7 +28,7 @@ const ENV = {
     return 'production';
   };
   
-  const currentEnv = getEnvironment();
+  // const currentEnv = getEnvironment();
   const config = ENV.production;
   
   export default config;
