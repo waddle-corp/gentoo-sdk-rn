@@ -58,10 +58,11 @@ export async function fetchFloatingData(partnerId: string, displayLocation: stri
 }
 
 export async function logEvent(payload: any) {
+    const chatUserId = await fetchChatUserId(payload.authCode);
     try {
         const params = {
             eventCategory: String(payload.eventCategory),
-            chatUserId: String(payload.chatUserId),
+            chatUserId: String(chatUserId),
             partnerId: String(payload.partnerId),
             channelId: String(payload.channelId),
             products: payload?.products,
